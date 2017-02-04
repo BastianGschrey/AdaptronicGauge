@@ -81,16 +81,13 @@ void loop()
 void readModbusRegister()
 {
 
-
-  ecu.readHoldingRegisters(4097, 6); //read 6 registers beginning from offest 4098
+  ecu.readHoldingRegisters(4097, 6); //read 6 registers beginning from offest 4097
 
   if (result == ecu.ku8MBSuccess)  //if transmission is good, decode Data
   {
     decodeModbusRegister();
 
   }
-
-
 
 }
 
@@ -118,41 +115,37 @@ void printValues()
   myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(43, 47, 56);
 
-  myGLCD.printNumI(data[0], 284, 110, 3, ' ');
+
+  if (data[0] > 500) {
+    //do nothing
+  }
+  else {
+    myGLCD.printNumI(data[0], 284, 110, 3, ' ');
 
 
-  //  myGLCD.fillRect(27,102,274,138);
-
-
-  myGLCD.fillRect(27, 102, 27 + (data[0]), 138);
-  myGLCD.setColor(0, 0, 0);
-  myGLCD.fillRect(27 + (data[0]), 102, 274, 138);
-
-
-  /*if(data[0] > 0){
-    myGLCD.printNumI(data[0],295, 110,3,' ');
-    myGLCD.fillRect(127,102,128+(data[0]),138);
-    myGLCD.setColor(0, 0, 0);
-    myGLCD.fillRect(128+(data[0]),102,274,138);
+    myGLCD.fillRect(27, 102, 27 + (data[0] / 2), 138);
+    if (data[0] < 497) {
+      myGLCD.setColor(0, 0, 0);
+      myGLCD.fillRect(27 + (data[0] / 2), 102, 274, 138);
     }
-    else{
-    myGLCD.printNumI(data[0],295, 110,3,' ');
-    //myGLCD.fillRect(125,102,125-(Boost*(-1)*100),138);
-    //myGLCD.setColor(0, 0, 0);
-    //myGLCD.fillRect(27,102,126-(Boost*(-1)*100),138);
-    }*/
+  }
 
   //---------Air Temp Print---------
 
+if(data[1] > 125){
+  
+}
+else{
   myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(43, 47, 56);
 
   myGLCD.printNumI(data[1], 295, 250, 3, ' ');
-  myGLCD.fillRect(27, 242, 27 + (data[1]), 279);
+  myGLCD.fillRect(27, 242, 27 + (data[1] * 2), 279);
   myGLCD.setColor(0, 0, 0);
-  myGLCD.fillRect(27 + (data[1]), 242, 274, 279);
-
-
+  if (data[1] < 125) {
+    myGLCD.fillRect(27 + (data[1] * 2), 242, 274, 279);
+  }
+}
   //------------Oiltemp------------
 
 
@@ -177,37 +170,37 @@ void printValues()
 
   AFR = data[4] / 2570.00;
 
-        //DEBUG!!!
-        //myGLCD.printNumF(AFR, 2 , 680, 110, '.', 5, ' ');
+  //DEBUG!!!
+  //myGLCD.printNumF(AFR, 2 , 680, 110, '.', 5, ' ');
 
 
 
 
-  
-    if (AFR <= 7.35) {
-      myGLCD.setColor(255, 140, 0);
-      myGLCD.print("RICH ", 680, 110);
-    }
-    if (AFR >= 22.00) {
-      myGLCD.setColor(VGA_RED);
-      myGLCD.print("LEAN ", 680, 110);
-      myGLCD.fillRect(427, 102, 674, 138);
-    }
+
+  if (AFR <= 7.35) {
+    myGLCD.setColor(255, 140, 0);
+    myGLCD.print("RICH ", 680, 110);
+  }
+  if (AFR >= 22.00) {
+    myGLCD.setColor(VGA_RED);
+    myGLCD.print("LEAN ", 680, 110);
+    myGLCD.fillRect(427, 102, 674, 138);
+  }
 
 
 
-    if (AFR > 7.36 && AFR < 22.00) {
+  if (AFR > 7.36 && AFR < 22.00) {
 
-      if (AFR < 10) myGLCD.setColor(255, 140, 0);
-      if (AFR >= 10 && AFR <= 14.7) myGLCD.setColor(VGA_GREEN);
-      if (AFR > 14.8) myGLCD.setColor(VGA_RED);
+    if (AFR < 10) myGLCD.setColor(255, 140, 0);
+    if (AFR >= 10 && AFR <= 14.7) myGLCD.setColor(VGA_GREEN);
+    if (AFR > 14.8) myGLCD.setColor(VGA_RED);
 
-      myGLCD.printNumF(AFR, 1 , 680, 110, '.', 5, ' ');
-      myGLCD.fillRect(427, 102, 427 + ((AFR - 7.36) * 17), 138);
-      myGLCD.setColor(0, 0, 0);
-      myGLCD.fillRect(427 + ((AFR - 7.36) * 17), 102, 674, 138);
-    }
-  
+    myGLCD.printNumF(AFR, 1 , 680, 110, '.', 5, ' ');
+    myGLCD.fillRect(427, 102, 427 + ((AFR - 7.36) * 17), 138);
+    myGLCD.setColor(0, 0, 0);
+    myGLCD.fillRect(427 + ((AFR - 7.36) * 17), 102, 674, 138);
+  }
+
 
 
   //------Water Temp----
@@ -235,6 +228,8 @@ void printValues()
   myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(43, 47, 56);
 
+  if ((data[5] / 256) > 60) myGLCD.setColor(VGA_RED);
+  else myGLCD.setColor(255, 255, 255);
   if (data[5] == 0) {
     myGLCD.printNumI(0, 680, 390, 3, ' ');
   }
@@ -242,11 +237,11 @@ void printValues()
   {
     myGLCD.printNumI(data[5] / 256, 680, 390, 3, ' ');
 
-    if ((data[5] / 256) > 60) myGLCD.setColor(VGA_RED);
+    //if ((data[5] / 256) > 60) myGLCD.setColor(VGA_RED);
     myGLCD.printNumI(data[5] / 256, 680, 390, 3, ' ');
-    myGLCD.fillRect(427, 382, 427 + ((data[5] / 256) * 2.5), 418);
+    myGLCD.fillRect(427, 382, 427 + ((data[5] / 256)), 418);
     myGLCD.setColor(0, 0, 0);
-    myGLCD.fillRect(427 + ((data[5] / 256) * 2.5), 382, 674, 418);
+    myGLCD.fillRect(427 + ((data[5] / 256)), 382, 674, 418);
   }
 
 
