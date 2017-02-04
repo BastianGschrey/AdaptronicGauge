@@ -10,8 +10,8 @@
 #define TOUCH_ORIENTATION  LANDSCAPE
 
 //Load RAW Images (Huge memory consumption!)
-extern unsigned short EFINI[0x11080];
-extern unsigned short efini_text[0x39F8];
+//extern unsigned short EFINI[0x11080];
+//extern unsigned short efini_text[0x39F8];
 
 // Declare which fonts we will be using
 extern uint8_t SmallFont[];
@@ -31,11 +31,13 @@ bool inProgress = false;
 uint16_t data[6]; //6 words for the 6 values displayed by gauge
 uint8_t j, result;
 float MAP; //variable to calcucate MAP
+float AFR; // variable to calcuate AFR
 
 
 
 void setup() {
-  Serial.begin(57600); //open Serial Port
+  Serial.begin(57600); //open Serial1 Port
+
 
   ecu.begin(1, Serial); //open Modbus socket
 
@@ -51,8 +53,8 @@ void setup() {
   myGLCD.setColor(255, 255, 255);
   myGLCD.fillRect(0, 0, 800, 480);
 
-  myGLCD.drawBitmap (240, 130, 320, 218, EFINI);
-  myGLCD.drawBitmap (285, 390, 212, 70, efini_text);
+  //myGLCD.drawBitmap (240, 130, 320, 218, EFINI);
+  //myGLCD.drawBitmap (285, 390, 212, 70, efini_text);
 
   myGLCD.setBackColor(255, 255, 255);
   myGLCD.setColor(0, 0, 0);
@@ -80,7 +82,7 @@ void readModbusRegister()
 {
 
 
-  ecu.readHoldingRegisters(4097, 6); //read 6 registers beginning from offest 4096
+  ecu.readHoldingRegisters(4097, 6); //read 6 registers beginning from offest 4098
 
   if (result == ecu.ku8MBSuccess)  //if transmission is good, decode Data
   {
@@ -173,39 +175,39 @@ void printValues()
   myGLCD.setColor(255, 255, 255);
   myGLCD.setBackColor(43, 47, 56);
 
-  MAP = (data[4] / 257.00) / 10.00;
+  AFR = data[4] / 2570.00;
 
-  //DEBUG!!!
-  //myGLCD.printNumF(MAP, 2 , 680, 110, '.', 5, ' ');
-
-
+        //DEBUG!!!
+        //myGLCD.printNumF(AFR, 2 , 680, 110, '.', 5, ' ');
 
 
 
-  if (MAP <= 7.35) {
-    myGLCD.setColor(255, 140, 0);
-    myGLCD.print("RICH ", 680, 110);
-  }
-  if (MAP >= 22.00) {
-    myGLCD.setColor(VGA_RED);
-    myGLCD.print("LEAN ", 680, 110);
-    myGLCD.fillRect(427, 102, 674, 138);
-  }
+
+  
+    if (AFR <= 7.35) {
+      myGLCD.setColor(255, 140, 0);
+      myGLCD.print("RICH ", 680, 110);
+    }
+    if (AFR >= 22.00) {
+      myGLCD.setColor(VGA_RED);
+      myGLCD.print("LEAN ", 680, 110);
+      myGLCD.fillRect(427, 102, 674, 138);
+    }
 
 
 
-  if (MAP > 7.36 && MAP < 22.00) {
+    if (AFR > 7.36 && AFR < 22.00) {
 
-    if (MAP < 10) myGLCD.setColor(255, 140, 0);
-    if (MAP >= 10 && MAP <= 14.7) myGLCD.setColor(VGA_GREEN);
-    if (MAP > 14.8) myGLCD.setColor(VGA_RED);
+      if (AFR < 10) myGLCD.setColor(255, 140, 0);
+      if (AFR >= 10 && AFR <= 14.7) myGLCD.setColor(VGA_GREEN);
+      if (AFR > 14.8) myGLCD.setColor(VGA_RED);
 
-    myGLCD.printNumF(MAP, 1 , 680, 110, '.', 5, ' ');
-    myGLCD.fillRect(427, 102, 427 + ((MAP - 7.36) * 17), 138);
-    myGLCD.setColor(0, 0, 0);
-    myGLCD.fillRect(427 + ((MAP - 7.36) * 17), 102, 674, 138);
-  }
-
+      myGLCD.printNumF(AFR, 1 , 680, 110, '.', 5, ' ');
+      myGLCD.fillRect(427, 102, 427 + ((AFR - 7.36) * 17), 138);
+      myGLCD.setColor(0, 0, 0);
+      myGLCD.fillRect(427 + ((AFR - 7.36) * 17), 102, 674, 138);
+    }
+  
 
 
   //------Water Temp----
