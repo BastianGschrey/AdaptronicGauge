@@ -72,7 +72,7 @@ void loop()
   delay(50);
   //delay(1000);
   readModbusRegister();
-  //ecu.readHoldingRegisters(4097, 6);
+
 
 }
 
@@ -81,6 +81,8 @@ void loop()
 void readModbusRegister()
 {
 
+  //Serial.flush();
+  ecu.clearTransmitBuffer();
   ecu.readHoldingRegisters(4097, 6); //read 6 registers beginning from offest 4097
 
   if (result == ecu.ku8MBSuccess)  //if transmission is good, decode Data
